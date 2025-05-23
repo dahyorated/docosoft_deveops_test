@@ -12,7 +12,7 @@ resources:
 
 variables:
   imageRepository: 'counterapi'
-  dockerRegistryServiceConnection: 'msi-acrezidocosoft'
+  dockerRegistryServiceConnection: 'sp-acrezidocosoft'
   azureSubscriptionServiceConnection: 'sp-azurermezi'
   resourceGroupName: 'Ezi-RG'
   webAppName: 'webapp-ezidocosoft'

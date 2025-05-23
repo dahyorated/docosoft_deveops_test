@@ -19,7 +19,7 @@ pr:
 variables:
   buildConfiguration: 'Release'
   dotNetSdkVersion: '8.0.100'
-  dockerRegistryServiceConnection: 'msi-acrezidocosoft'
+  dockerRegistryServiceConnection: 'sp-acrezidocosoft'
   imageRepository: 'counterapi'
   dockerfilePath: 'Dockerfile'
 
