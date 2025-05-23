@@ -57,8 +57,8 @@ stages:
                 az webapp config container set \
                   --resource-group $(resourceGroupName) \
                   --name $(webAppName) \
-                  --docker-custom-image-name "$FULL_IMAGE_NAME" \
-                  --docker-registry-server-url "https://$(acrLoginServer)" \
+                  --container-image-name "$FULL_IMAGE_NAME" \
+                  --container-registry-url "https://$(acrLoginServer)" \
                   --output json
                 
                 az webapp config appsettings set \
