@@ -61,20 +61,21 @@ stages:
                     ACR_USERNAME=$(echo $ACR_CREDENTIALS | jq -r .username)
                     ACR_PASSWORD=$(echo $ACR_CREDENTIALS | jq -r .password)
 
-                    az webapp config appsettings set \
-                      --name $(webAppName) \
-                      --resource-group $(resourceGroupName) \
-                      --settings \
-                        DOCKER_REGISTRY_SERVER_URL=https://$(acrLoginServer) \
-                        DOCKER_REGISTRY_SERVER_USERNAME=$ACR_USERNAME \
-                        DOCKER_REGISTRY_SERVER_PASSWORD=$ACR_PASSWORD \
-                        WEBSITES_PORT=80 \
-                        WEBSITES_ENABLE_APP_SERVICE_STORAGE=false \
-                      --output json
+                    echo "ACR_USERNAME=$ACR_USERNAME"
+                    echo "ACR_PASSWORD=$(if [ -z "$ACR_PASSWORD" ]; then echo "NOT SET"; else echo "SET"; fi)"
 
                     az webapp config container set \
                       --resource-group $(resourceGroupName) \
                       --name $(webAppName) \
                       --container-image-name "$FULL_IMAGE_NAME" \
                       --container-registry-url "https://$(acrLoginServer)" \
+                      --container-registry-user "$ACR_USERNAME" \
+                      --container-registry-password "$ACR_PASSWORD" \
+                      --enable-app-service-storage false \
+                      --output json
+
+                    az webapp config appsettings set \
+                      --name $(webAppName) \
+                      --resource-group $(resourceGroupName) \
+                      --settings WEBSITES_PORT=80 \
                       --output json
