@@ -34,7 +34,11 @@ stages:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Build Artifacts'
             inputs:
-              artifactName: 'build_artifacts'
+              buildType: 'specific'
+              project: '$(System.TeamProject)'
+              definition: $(resources.pipeline.buildPipeline.pipelineId)
+              runVersion: 'latest'
+              artifact: 'build_artifacts'
               path: '$(Build.SourcesDirectory)/build_artifacts'
 
           - task: AzureCLI@2
