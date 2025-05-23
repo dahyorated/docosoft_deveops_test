@@ -54,11 +54,19 @@ stages:
 
                 echo "Deploying image: $FULL_IMAGE_NAME to App Service: $(webAppName)"
 
-                az webapp config container set \
-                  --resource-group $(resourceGroupName) \
+                ACR_CREDENTIALS=$(az acr credential show --name acrezidocosoft --query "{username: username, password: passwords[0].value}" -o json)
+                ACR_USERNAME=$(echo $ACR_CREDENTIALS | jq -r .username)
+                ACR_PASSWORD=$(echo $ACR_CREDENTIALS | jq -r .password)
+
+                az webapp config appsettings set \
                   --name $(webAppName) \
-                  --container-image-name "$FULL_IMAGE_NAME" \
-                  --container-registry-url "https://$(acrLoginServer)" \
+                  --resource-group $(resourceGroupName) \
+                  --settings \
+                    DOCKER_REGISTRY_SERVER_URL="https://$(acrLoginServer)" \
+                    DOCKER_REGISTRY_SERVER_USERNAME="$ACR_USERNAME" \
+                    DOCKER_REGISTRY_SERVER_PASSWORD="$ACR_PASSWORD" \
+                    WEBSITES_PORT=80 \
+                    WEBSITES_ENABLE_APP_SERVICE_STORAGE=false \
                   --output json
                 
                 az webapp config appsettings set \
