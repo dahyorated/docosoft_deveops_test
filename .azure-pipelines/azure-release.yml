@@ -34,7 +34,6 @@ stages:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Build Artifacts'
             inputs:
-              buildType: 'current'
               artifactName: 'build_artifacts'
               path: '$(Build.SourcesDirectory)/build_artifacts'
 
