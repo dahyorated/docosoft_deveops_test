@@ -3,10 +3,12 @@ trigger: none
 resources:
   pipelines:
   - pipeline: buildPipeline
-    source: 'CounterService-CI' # <- Replace with your actual CI pipeline name
+    source: 'dahydrated.docosoft_devops_test' # <- Replace with your actual CI pipeline name
     trigger:
       branches:
-        - main
+        include:
+          - main
+          - features/*
 
 variables:
   imageRepository: 'counterapi'
@@ -16,7 +18,7 @@ variables:
   webAppName: 'webapp-ezidocosoft'
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: 'ezi-ado-host'
 
 stages:
 - stage: DeployToDev
