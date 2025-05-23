@@ -1,0 +1,61 @@
+trigger: none
+
+resources:
+  pipelines:
+  - pipeline: buildPipeline
+    source: 'CounterService-CI' # <- Replace with your actual CI pipeline name
+    trigger:
+      branches:
+        - main
+
+variables:
+  imageRepository: 'counterapi'
+  dockerRegistryServiceConnection: 'sp-acrezidocosoft'
+  azureSubscriptionServiceConnection: 'sp-azurermezi'
+  resourceGroupName: 'Ezi-RG'
+  webAppName: 'webapp-ezidocosoft'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: DeployToDev
+  displayName: Deploy to Development
+  jobs:
+  - deployment: DeployDev
+    displayName: Deploy to Azure Web App
+    environment: 'Dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download Build Artifacts'
+            inputs:
+              source: 'pipeline'
+              project: '$(System.TeamProject)'
+              pipeline: 'buildPipeline'
+              runVersion: 'latest'
+              artifact: 'build_artifacts'
+              path: '$(Pipeline.Workspace)/build_artifacts'
+
+          - task: AzureCLI@2
+            displayName: 'Deploy Docker Image to Azure App Service'
+            inputs:
+              azureSubscription: '$(azureSubscriptionServiceConnection)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                IMAGE_TAG=$(resources.pipeline.buildPipeline.runID)
+                FULL_IMAGE_NAME=$(dockerRegistryServiceConnection).azurecr.io/$(imageRepository):$IMAGE_TAG
+
+                echo "Deploying image: $FULL_IMAGE_NAME to App Service: $(webAppName)"
+
+                az webapp config container set \
+                  --resource-group $(resourceGroupName) \
+                  --name $(webAppName) \
+                  --docker-custom-image-name "$FULL_IMAGE_NAME" \
+                  --docker-registry-server-url "https://$(dockerRegistryServiceConnection).azurecr.io" \
+                  --output json
+
+                echo "Deployment complete."
