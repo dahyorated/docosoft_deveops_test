@@ -24,7 +24,7 @@ variables:
   dockerfilePath: 'Dockerfile'
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name : 'ezi-ado-host'
 
 stages:
 - stage: Build
