@@ -4,7 +4,9 @@
     
     COPY ["CounterApi.sln", "."]
     COPY ["src/CounterApi.csproj", "src/"]
+    COPY ["tests/CounterAPI.Tests/CounterAPI.Tests.csproj", "tests/CounterAPI.Tests/"]
     
+    # Now restore works — all projects are present
     RUN dotnet restore "CounterApi.sln"
     
     COPY . .
