@@ -19,9 +19,9 @@ pr:
 variables:
   buildConfiguration: 'Release'
   dotNetSdkVersion: '8.0.100'
-  dockerRegistryServiceConnection: 'sp-acrezidocosoft'
+  dockerRegistryServiceConnection: 'msi-acrezidocosoft'
   imageRepository: 'counterapi'
-  dockerfilePath: 'Dockerfile'
+  dockerfilePath: '$(Build.SourcesDirectory)/app/Dockerfile'
 
 pool:
   name: 'ezi-ado-host'
