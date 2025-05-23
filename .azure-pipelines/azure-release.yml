@@ -16,6 +16,7 @@ variables:
   azureSubscriptionServiceConnection: 'sp-azurermezi'
   resourceGroupName: 'Ezi-RG'
   webAppName: 'webapp-ezidocosoft'
+  acrLoginServer: 'acrezidocosoft.azurecr.io'
 
 pool:
   name: 'ezi-ado-host'
@@ -49,7 +50,7 @@ stages:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 IMAGE_TAG=$(resources.pipeline.buildPipeline.runID)
-                FULL_IMAGE_NAME=$(dockerRegistryServiceConnection).azurecr.io/$(imageRepository):$IMAGE_TAG
+                FULL_IMAGE_NAME=$(acrLoginServer)/$(imageRepository):$IMAGE_TAG
 
                 echo "Deploying image: $FULL_IMAGE_NAME to App Service: $(webAppName)"
 
@@ -57,7 +58,12 @@ stages:
                   --resource-group $(resourceGroupName) \
                   --name $(webAppName) \
                   --docker-custom-image-name "$FULL_IMAGE_NAME" \
-                  --docker-registry-server-url "https://$(dockerRegistryServiceConnection).azurecr.io" \
+                  --docker-registry-server-url "https://$(acrLoginServer)" \
                   --output json
+                
+                az webapp config appsettings set \
+                  --name $(webAppName) \
+                  --resource-group $(resourceGroupName) \
+                  --settings WEBSITES_PORT=80
 
                 echo "Deployment complete."

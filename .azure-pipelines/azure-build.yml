@@ -84,3 +84,4 @@ stages:
         pathToPublish: '$(Build.SourcesDirectory)'
         artifactName: 'build_artifacts'
         publishLocation: 'Container'
+# comment to trigger release
