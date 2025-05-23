@@ -24,7 +24,7 @@ variables:
   dockerfilePath: 'Dockerfile'
 
 pool:
-  name : 'ezi-ado-host'
+  name: 'ezi-ado-host'
 
 stages:
 - stage: Build
@@ -36,7 +36,8 @@ stages:
     - task: UseDotNet@2
       displayName: 'Install .NET SDK $(dotNetSdkVersion)'
       inputs:
-        version: $(dotNetSdkVersion)
+        version: '$(dotNetSdkVersion)'
+        includePreviewVersions: true
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore NuGet packages'
@@ -49,6 +50,13 @@ stages:
       inputs:
         command: 'build'
         projects: 'src/CounterApi.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      displayName: 'Build test project'
+      inputs:
+        command: 'build'
+        projects: 'tests/CounterAPI.Tests/CounterAPI.Tests.csproj'
         arguments: '--configuration $(buildConfiguration)'
 
     - task: DotNetCoreCLI@2
