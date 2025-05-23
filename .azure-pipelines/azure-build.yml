@@ -21,7 +21,7 @@ variables:
   dotNetSdkVersion: '8.0.100'
   dockerRegistryServiceConnection: 'msi-acrezidocosoft'
   imageRepository: 'counterapi'
-  dockerfilePath: '$(Build.SourcesDirectory)/app/Dockerfile'
+  dockerfilePath: 'Dockerfile'
 
 pool:
   name: 'ezi-ado-host'

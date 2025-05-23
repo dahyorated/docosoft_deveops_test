@@ -24,7 +24,8 @@
     WORKDIR /app
     COPY --from=publish /app/publish .
     
-    ENV DOTNET_EnableDiagnostics=0 \
+    ENV ASPNETCORE_URLS=http://+:80 \
+        DOTNET_EnableDiagnostics=0 \
         DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
     
     EXPOSE 80
