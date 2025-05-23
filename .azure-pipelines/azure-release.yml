@@ -3,7 +3,7 @@ trigger: none
 resources:
   pipelines:
   - pipeline: buildPipeline
-    source: 'dahydrated.docosoft_devops_test' # <- Replace with your actual CI pipeline name
+    source: 'dahyorated.docosoft_deveops_test' # <- Replace with your actual CI pipeline name
     trigger:
       branches:
         include:
