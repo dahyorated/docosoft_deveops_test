@@ -34,12 +34,9 @@ stages:
           - task: DownloadPipelineArtifact@2
             displayName: 'Download Build Artifacts'
             inputs:
-              source: 'pipeline'
-              project: '$(System.TeamProject)'
-              pipeline: 'buildPipeline'
-              runVersion: 'latest'
-              artifact: 'build_artifacts'
-              path: '$(Pipeline.Workspace)/build_artifacts'
+              buildType: 'current'
+              artifactName: 'build_artifacts'
+              path: '$(Build.SourcesDirectory)/build_artifacts'
 
           - task: AzureCLI@2
             displayName: 'Deploy Docker Image to Azure App Service'
