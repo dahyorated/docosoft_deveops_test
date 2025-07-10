@@ -1,0 +1,81 @@
+trigger: none
+
+resources:
+  pipelines:
+    - pipeline: buildPipeline
+      source: 'dahyorated.docosoft_deveops_test'
+      trigger:
+        branches:
+          include:
+            - main
+            - features/*
+
+variables:
+  imageRepository: 'counterapi'
+  dockerRegistryServiceConnection: 'sp-acrezidocosoft'
+  azureSubscriptionServiceConnection: 'sp-azurermezi'
+  resourceGroupName: 'Ezi-RG'
+  webAppName: 'webapp-ezidocosoft'
+  acrName: 'acrezidocosoft'
+  acrLoginServer: 'acrezidocosoft.azurecr.io'
+
+pool:
+  name: 'ezi-ado-host'
+
+stages:
+- stage: DeployToDev
+  displayName: Deploy to Development
+  jobs:
+    - deployment: DeployDev
+      displayName: Deploy to Azure Web App
+      environment: 'Dev'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - task: DownloadPipelineArtifact@2
+                displayName: 'Download Build Artifacts'
+                inputs:
+                  buildType: 'specific'
+                  project: '$(System.TeamProject)'
+                  definition: $(resources.pipeline.buildPipeline.pipelineId)
+                  runVersion: 'latest'
+                  artifact: 'build_artifacts'
+                  path: '$(Build.SourcesDirectory)/build_artifacts'
+
+              - task: AzureCLI@2
+                displayName: 'Deploy Docker Image to Azure App Service'
+                inputs:
+                  azureSubscription: '$(azureSubscriptionServiceConnection)'
+                  scriptType: 'bash'
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                    if ! command -v jq &> /dev/null; then
+                      apt-get update && apt-get install -y jq
+                    fi
+
+                    IMAGE_TAG=$(resources.pipeline.buildPipeline.runID)
+                    FULL_IMAGE_NAME=$(acrLoginServer)/$(imageRepository):$IMAGE_TAG
+
+                    ACR_CREDENTIALS=$(az acr credential show --name $(acrName) --query "{username: username, password: passwords[0].value}" -o json)
+                    ACR_USERNAME=$(echo $ACR_CREDENTIALS | jq -r .username)
+                    ACR_PASSWORD=$(echo $ACR_CREDENTIALS | jq -r .password)
+
+                    echo "ACR_USERNAME=$ACR_USERNAME"
+                    echo "ACR_PASSWORD=$(if [ -z "$ACR_PASSWORD" ]; then echo "NOT SET"; else echo "SET"; fi)"
+
+                    az webapp config container set \
+                      --resource-group $(resourceGroupName) \
+                      --name $(webAppName) \
+                      --container-image-name "$FULL_IMAGE_NAME" \
+                      --container-registry-url "https://$(acrLoginServer)" \
+                      --container-registry-user "$ACR_USERNAME" \
+                      --container-registry-password "$ACR_PASSWORD" \
+                      --enable-app-service-storage false \
+                      --output json
+
+                    az webapp config appsettings set \
+                      --name $(webAppName) \
+                      --resource-group $(resourceGroupName) \
+                      --settings WEBSITES_PORT=80 \
+                      --output json
